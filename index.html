@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cancer v Nitrates</title>
+    
+    <script src='assets/js/voronoi.js'></script>
+    
+    <link rel="stylesheet" href="./assets/css/leaflet.css">
+    <link rel="stylesheet" href="./node_modules/leaflet/dist/leaflet.css">
+    <!--<link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"/>-->
+    <link rel="stylesheet" href="assets/css/style.css">
+    <!-- LEGEND SPAN BELOW add to SCSS later -->
+    <style>
+    #map {height: 400px} 
+    #map2 {height: 400px} 
+    #map3 {height: 400px}  
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg bg-secondary navbar-dark py-3 fixed-top">
+      <div class="container">
+        <a href="#" class="navbar-brand">Cancer and Nitrates: A Comparative Analysis</a>
+
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navmenu"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navmenu">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a href="#purpose" class="nav-link">PURPOSE</a>
+            </li>
+            <li class="nav-item">
+              <a href="#background" class="nav-link">BACKGROUND</a>
+            </li>
+            <li class="nav-item">
+              <a href="#analysis" class="nav-link">ANALYSIS</a>
+            </li>
+            <li class="nav-item">
+              <a href="#conclusion" class="nav-link">CONCLUSION</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    
+    <!-- Purpose Sections -->
+    <div class = "mt-5"></div>
+    <section id="purpose" class="p-5">
+      <div class="container">
+        <div class="row align-items-center justify-content-between">
+          <div class="col-md">
+            <img
+              class="img-fluid w-100 d-none d-sm-block"
+              src="https://www.ewg.org/sites/default/files/styles/wide_standard_xl/public/blog/WINitrateBlog.jpg?h=2e181f1f&itok=i7qwTxNv"
+              alt=""
+            />
+          </div>
+          <div class="col-md p-5">
+            <h2>Why are we talking about nitrates?</h2>
+            <br> 
+            <p class="lead">
+              Nitrate contamination of drinking water in Wisconsin may cause nearly 300 cases a year of colorectal and other cancers and increase the risk of very premature births, very low birth weight and birth defects, according to a peer-reviewed study by scientists from Clean Wisconsin and the Environmental Working Group. <a href="https://pubmed.ncbi.nlm.nih.gov/33095309/"target="_blank" rel="noopener noreferrer"><sup> 1</sup></a>
+              <br> <br>
+              The prevention of ongoing nitrate pollution of drinking water sources and installing treatment to remove nitrate from drinking water holds the promise of eliminating or mitigating these future costs, both economic and personal.
+            </p>
+            <a href="https://www.ewg.org/news-insights/news/study-nitrate-wisconsins-drinking-water-linked-cancer-preterm-births-and-74" target="_blank" rel="noopener noreferrer" class="btn btn-light mt-3">
+              <i class="bi bi-chevron-right"></i> Read More 
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    
+
+    <!-- Question Accordion -->
+    <section id="background" class="p-5">
+      <div style="margin-top:3rem;"></div>
+      <div class="container">
+        <h2 class="text-center mb-4">Background Information on Cancer and Nitrate Rates</h2>
+        <div class="accordion accordion-flush" id="background">
+          <!-- Item 1 -->
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button
+                class="accordion-button collapsed"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#question-one"
+              >
+                What are nitrates?
+              </button>
+            </h2>
+            <div
+              id="question-one"
+              class="accordion-collapse collapse"
+              data-bs-parent="#background"
+            >
+              <div class="accordion-body">
+                A nitrate is a polyatomic ion with the chemical formula NO₃. Salts containing this ion are called nitrates. Nitrates are common components of fertilizers and explosives. Almost all inorganic nitrates are soluble in water. 
+              </div>
+            </div>
+          </div>
+          <!-- Item 2 -->
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button
+                class="accordion-button collapsed"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#question-two"
+              >
+                How is cancer tied to nitrates from farming?
+              </button>
+            </h2>
+            <div
+              id="question-two"
+              class="accordion-collapse collapse"
+              data-bs-parent="#background"
+            >
+              <div class="accordion-body">
+                Nitrate contamination of drinking water, common in agricultural areas, increases the risk of certain cancers and impacts fetal development during pregnancy. Nitrates are the most common contaminants in groundwater in Wisconsin and pose a risk because approximately two-thirds of the state's residents use groundwater as the primary source of drinking water. 
+              </div>
+            </div>
+          </div>
+          <!-- Item 3 -->
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button
+                class="accordion-button collapsed"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#question-three"
+              >
+                Inverse Distance Weighting (IDW)
+              </button>
+            </h2>
+            <div
+              id="question-three"
+              class="accordion-collapse collapse"
+              data-bs-parent="#background"
+            >
+              <div class="accordion-body">
+                <img src="https://gisgeography.com/wp-content/uploads/2016/05/IDW-Featured-Image-1265x568.png" >
+                Nitrate levels in groundwater change continuously across the landscape and with the provided well point data we only have measurements for some of the well locations in the state. Additionally, point data won’t cover the entire state and there will be gaps between wells, so nitrate data needs to be converted into a continuous surface using inverse distance weighting (IDW). IDW predicts measurements for unmeasured locations using a weighted distance coefficient to determine how quickly the weight of a sample value will decrease its influence moving away from the sample point. Greater weights are given to grid values, derived through interpolation, that are closer to the prediction location. Distance coefficients for this type of analysis usually range from approximately 1.5 to 2.5. 
+              </div>
+            </div>
+          </div>
+          <!-- Item 4 -->
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button
+                class="accordion-button collapsed"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#question-four"
+              >
+              Spatial Interpolation 
+              </button>
+            </h2>
+            <div
+              id="question-four"
+              class="accordion-collapse collapse"
+              data-bs-parent="#background"
+            >
+              <div class="accordion-body">
+                Interpolation is a portion of IDW and required to compare samples with different geographies, like nitrate measurements and cancer rates. Spatial interpolation is the process of using points with known values to estimate values at other points. Interpolation typically is applied to a grid, in our case a hexagonal grid, with estimates made for all cells. With both the nitrates and cancer rate datasets we create a continuous field with values derived using the IDW. Having the same spatial unit for both datasets allows us to perform a spatial regression to find the relationship between the two variables. 
+              </div>
+            </div>
+          </div>
+          <!-- Item 5 -->
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button
+                class="accordion-button collapsed"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#question-five"
+              >
+                Ordinary Least Squares (OLS) Linear Regression
+              </button>
+            </h2>
+            <div
+              id="question-five"
+              class="accordion-collapse collapse"
+              data-bs-parent="#background"
+            >
+              <div class="accordion-body">
+                Ordinary least squares (OLS) is a type of linear least squares method for estimating the unknown parameters in a linear regression model. OLS chooses the parameters of a linear function of a set of explanatory variables by the principle of least squares: minimizing the sum of the squares of the differences between the observed dependent variable (cancer rates) in the dataset and those predicted by the linear function of the independent variable (nitrate concentrations). The resulting estimator is expressed by a simple formula. 
+                <br> <br> 
+                <b>Independent Variable (Explanatory):</b> Nitrate concentrations from well water samples (ppm).
+                <br><br> 
+                <b>Dependent Variable: </b>Cancer rate - total cancer occurrences divided by the total population - of the census tracts.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="analysis" class="p-5 bg-primary">
+      <div style="margin-top:3rem;"></div>
+      <div class="container">
+        <h2 class="text-center text-white">Analysis</h2>
+        <p class="lead text-center text-white mb-5">
+          Inverse Distance Weighting (IDW) and Ordinary Least Squares (OLS) Linear Regression
+        </p>
+        <div class="row g-4">
+          <div class="col-md-12 col-lg-12">
+            <div class="card bg-light">
+              <div id="mapone"></div>
+              <div id="map"></div>
+              <div class="card-body text-center">
+                <label for="exponent"><b>Exponent</b></label>
+                <input id="exponent" min="1" type="number" value="2"/>
+                <label for="cellSize"><b>Cell Size</b></label>
+                <input id="cellSize" min="1" type="number" value="20"/>
+                <br><br>
+                <div class="radiobuttons">
+                  <input name="shape" type="radio" value="hex" checked="checked"> Hexagon
+                  <input name="shape" type="radio" value="square"> Square
+                  <input name="shape" type="radio" value="triangle"> Triangle
+                </div>
+              
+                <div class="radiobuttons">
+                    <input name="units" type="radio" value="miles"> Miles
+                    <input name="units" type="radio" value="kilometers" checked="checked"> Kilometers
+                </div>
+              <br> 
+                <div class="row">
+                  <div class="controls">
+                      <button class="buttonload btn btn-primary btn-block" id="interpolate">
+                          <i class="fa fa-circle-o-notch fa-spin" id="loader"></i> Interpolate
+                          <i class="far fa-question-circle" id="hexesTip"></i></button>
+                      <br>
+                </div>
+                </div>
+                <br>
+                <p>The Inverse Distance Weighting (IDW) calculation interpolates the nitrate values from the wells to the adjacent areas that lack measurements. The IDW exponent determines the influence of each well on surrounding areas and the exponent determines how rapidly influence decays (1 = slowly, 10 = rapidly). Cell size controls the level of coarseness or granularity of the resulting hexagonal grid dataset.</p>
+                <div class='row'>
+                  <ul class="controls">
+                    <!--<a href="#map2"><button class="btn btn-primary btn-block" id="map2button" disabled> Next</button></a>-->
+                    <input type="button" id="map2button" class="btn btn-primary btn-block" onclick="location.href='#maptwo';" value="Next" disabled=""/>
+                  </ul>
+                </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="maptwo"></div>
+          <div class="col-md-12 col-lg-12">
+            <div class="card bg-light">
+              <div class="card-body text-center">
+                <div class='row'>
+                  <ul class="controls">
+                    <input type="button" id="map2button" class="btn btn-primary btn-block" onclick="location.href='#mapone';" value="Back"/>
+                  </ul>
+                </div>
+              </div>
+              <div class="card bg-light">
+                <div id="map2"></div>
+
+                <div class="card-body text-center">
+                  <br>
+                  
+                  <div class="row">
+                    <div class="controls">
+                        <button class="buttonload btn btn-primary btn-block" id="interpolate2">
+                            <i class="fa fa-circle-o-notch fa-spin" id="loader2"></i> Interpolate
+                            <i class="far fa-question-circle" id="hexesTip"></i></button>
+                        <br>
+                  </div>
+                  </div>
+                  <br>
+                  <p>Comparing nitrate levels and cancer rates requires converting both datasets into the same format. Interpolating cancer rates for census tracts means calculating the centroid of each census tract and interpolating these values to the same grid, using the same distance decay coefficient or exponent, that we used to create the nitrate layer in the prior map.</p>
+                  <div class='row'>
+                    <ul class="controls">
+                      <input type="button" id="map3button" class="btn btn-primary btn-block" onclick="location.href='#mapthree';" value="Next"/>
+                    </ul>
+                  </div>  
+                </div>
+                
+              </div>
+            </div>
+          
+            <div id="mapthree"></div>
+            <div class="col-md-12 col-lg-12">
+              <div class="card bg-light">
+                <div class="card-body text-center">
+                  <div class='row'>
+                    <ul class="controls">
+                      <input type="button" id="map2button" class="btn btn-primary btn-block" onclick="location.href='#maptwo';" value="Back"/>
+                    </ul>
+                  </div>
+                </div>
+                <div class="card bg-light">
+                  <div id="map3"></div>
+                  <div class="card card-body">
+                    <div class="card-body text-center">
+                      <br>
+                      <div class="row">
+                        <div class="controls">
+                            <button class="buttonload btn btn-primary btn-block" id="regButton">
+                                <i class="fa fa-circle-o-notch fa-spin" id="loader3"></i> Run Regression
+                                <i class="far fa-question-circle" id="regTip"></i></button>
+                        </div>
+                      </div>
+                      <br>
+                      <p>Following interpolation, both nitrate and cancer rates are aggregated to hexbins based on user input. Ordinary least squares (OLS) linear regression is then calculated to determine if high nitrate levels explain cancer occurrences. The results of the OLS regression are mapped here as the standard deviation of the residual values.</p> 
+                      <br> 
+                      <div class='row'>
+                        <!--<ul class="controls">
+                          <input type="button" id="map2button" class="btn btn-primary btn-block" onclick="location.href='#conclusion';" value="Next"/>
+                        </ul>-->
+                        </div>
+                      </div>
+                      </div>
+                      </div>
+                      <div id="myPlot" style="width:100%"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>  
+            <!--<div id="mapthree"></div>-->
+          </div>
+      </div>
+    </section>
+
+
+    
+    <!-- Footer -->
+    <footer class="p-5 bg-dark text-white text-center position-relative">
+      <div class="container">
+        <p class="lead">&copy; KeHaDo 2021</p>
+
+        <a href="#" class="position-absolute bottom-0 end-0 p-5">
+          <i class="bi bi-arrow-up-circle h1"></i>
+        </a>
+      </div>
+    </footer>
+    
+    <!--<script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"></script>-->
+    <script type="text/javascript" src="./node_modules/leaflet/dist/leaflet.js"></script>
+    <script type="text/javascript" src="./node_modules/bootstrap/dist/js/bootstrap.js"></script>
+    <!--testing packages-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-ajax/2.1.0/leaflet.ajax.min.js"></script>
+    <script src="http://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src='https://npmcdn.com/@turf/turf/turf.min.js'></script>
+    <script src="https://unpkg.com/simple-statistics@2.2.0/dist/simple-statistics.min.js"></script>
+    
+    <script src="https://cdn.plot.ly/plotly-2.4.2.min.js"></script>
+    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/chroma-js/1.2.1/chroma.min.js"></script>-->
+    <!--end testing packages-->
+    <script type= "text/javascript" src = "./assets/js/main.js"></script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.js"></script>
+   
+  </body>
+</html>

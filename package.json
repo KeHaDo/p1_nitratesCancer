@@ -1,0 +1,23 @@
+{
+  "name": "p1_nitratesCancer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "compile:sass": "sass --watch scss:assets/css"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/leaflet": "1.7.5",
+    "sass": "^1.41.0"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.15.4",
+    "autoprefixer": "^10.3.4",
+    "bootstrap": "^5.1.1",
+    "leaflet": "1.7.1",
+    "plotly": "^1.0.6",
+    "postcss-cli": "^8.3.1"
+  }
+}
