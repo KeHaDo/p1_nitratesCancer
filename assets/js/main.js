@@ -1,6 +1,6 @@
-//----------------------------
-// MAP(s) DEFINITION
-//----------------------------
+//---------------------------------------
+// MAP(s) and GLOBAL VARIABLE DEFINITION
+//---------------------------------------
 
 //MAP1
 //mapbox accessToken and custom style from Geog572
@@ -280,7 +280,16 @@ function  calculateLinearRegression() {
     var b = regEq.b; 
 
     var regEqFormat = "y = " + parseFloat(m).toFixed(5) + "x + " + parseFloat(b).toFixed(5);
-    //console.log("Regression Equation: " + regEqFormat);
+    console.log("Regression Equation: " + regEqFormat);
+
+    //CALCULATE LINEAR REGRESSION LINE USING OLS LINEAR REGRESSION EQUATION  
+    
+    var regLine = ss.linearRegressionLine(regEq);
+    //console.log("regLine:", regLine)
+    
+    var rSquared = parseFloat(ss.rSquared(observedNitratesCancersArray, regLine)).toFixed(5);
+        
+    console.log("r-Squared: " + rSquared);
     
     for (var j in collected.features) {
 
@@ -293,7 +302,7 @@ function  calculateLinearRegression() {
         var predictedCancerRate = m * (parseFloat(collectedHexInterpNitrates)) + b;
 
         //CALCULATE RESIDUAL (Predicted Cancer Rate minus Observed Cancer Rate)
-        var residual = (predictedCancerRate - collectedHexbinInterpCancers)*10; 
+        var residual = (predictedCancerRate - collectedHexbinInterpCancers); 
 
         //collected.features[j].properties.errorLevel = Math.abs(residual);
         //stdDevRes = ss.standardDeviation(residual);
@@ -311,29 +320,47 @@ function  calculateLinearRegression() {
         yObCan.push(collectedHexbinInterpCancers); 
         yExCan.push(predictedCancerRate);    
 
-        console.log(residual);
+        //console.log("individual residuals:", residual);
 
     }
-    console.log('collected: ', collected);
-
-    //CALCULATE LINEAR REGRESSION LINE USING OLS LINEAR REGRESSION EQUATION    
-    var regLine = ss.linearRegressionLine(regEq);
-
-    var rSquared = parseFloat(ss.rSquared(observedNitratesCancersArray, regLine)).toFixed(5);
+    //console.log('collected: ', collected);
+    var rSquared2 = []; 
     
-    console.log("r-Squared: " + rSquared);
-    
+    turf.featureEach(collected, function(currentFeature, featureIndex) {
+        currentFeature.properties.predictedCancerRate = regLine(currentFeature.properties.canrate);
+        currentFeature.properties.residual2 = Math.abs(currentFeature.properties.canrate - currentFeature.properties.predictedCancerRate);
+        currentFeature.properties.rSquared2 = currentFeature.properties.residual2 * currentFeature.properties.residual2; 
+        rSquared2.push(currentFeature.properties.rSquared2);
+    });
+    console.log("R Squared 2:", rSquared2);
+
+    stdDev = math.std(rSquared2);
+    var twoStdDev = stdDev*2;
+    median = math.median(rSquared2);
+    min = math.min(rSquared2);
+    max = math.max(rSquared2); 
+
+    console.log("Median - Standard Deviation x3: " + (median - (stdDev*3)));
+    console.log("Median - Two standard Deviations: " + (median - twoStdDev));
+    console.log("Median - Standard Deviation: " + (median - stdDev));
+    console.log("Median: " + median);
+    console.log("Median + Standard Deviation: " + (median + stdDev));
+    console.log("Median + two Standard Devs: " + (median + twoStdDev));
+    console.log("Median + Standard Dev x3: " + (median + (stdDev*3)));
+    console.log("Minimum: " + min + " Maximum: " + max);
+
     //RETURN REGRESSION HEXBINS FOR MAPPING
     regHexbins = L.geoJSON(collected, { 
-        style: hexesStyle3,
+        //style: hexesStyle3,
+        style: regHexStyle, 
         onEachFeature: function(feature, layer) {
-            layer.bindPopup('<p><b>NO₃ (ppm):</b> ' +parseFloat(feature.properties.nitr_ran).toFixed(3)+'<br><b>Cancer Rate:</b> ' + parseFloat(feature.properties.canrate).toFixed(3) + '%<br><b>Residual:</b> ' + parseFloat(feature.properties.residual).toFixed(3) + '</p>');
-        } 
+            layer.bindPopup('<p><b>NO₃ (ppm):</b> ' +parseFloat(feature.properties.rSquared2).toFixed(3)+'<br><b>Cancer Rate:</b> ' + parseFloat(feature.properties.canrate).toFixed(3) + '%<br><b>Standard Deviation of Residuals:</b> ' + parseFloat(feature.properties.residual).toFixed(3) + '</p>');
+        }, 
     }).addTo(map3);
     //console.log("reg hexbin test:", regHexbins);
     regHexbins.bringToFront(map3);
     layerControl3.addOverlay(regHexbins, "Regression Residuals");
-    loader3.hidden = true; 
+    //loader3.hidden = true; 
 
     //CREATE PLOTLY CHART
     //Observed nitrates and cancer rates by hexbins 
@@ -432,6 +459,16 @@ function hexesStyle3(feature) {
     };
 }
 
+function regHexStyle(feature) {
+    return {
+        fillColor: regHexColor(feature.properties.rSquared2),
+        weight: 1,
+        opacity: 1,
+        color: 'white',
+        fillOpacity: 0.75
+    };
+}
+
 //get well colors for nitr_ran values
 function getWellColor(d) {
     return d > 10 ? '#252525' :
@@ -475,7 +512,7 @@ function getHexesColor2(d) {
                     d > 0.1 ? '#fcbba1' :
                         '#fee5d9';
 }
-
+/* OLD REG HEX FUNCTION 
 //get collected hexbin colors for residuals
 function getHexesColor3(d) {
     return d > 1 ? '#d53e4f' :
@@ -488,7 +525,18 @@ function getHexesColor3(d) {
                                 d > -1 ? '#66c2a5' :
                                     '#3288bd';
 }
+*/
 
+//get reg hex color for std dev of residual
+function regHexColor(d) {
+    return d < (median - (stdDev*3)) ? "#d53e4f" :
+            d < (median - (stdDev*2)) ? "#fc8d59" : 
+                d < (median - stdDev)     ? "#fee08b" :
+                    d < (median + stdDev)     ? "#ffffbf" :
+                        d < (median + (stdDev*2)) ? "#e6f598" :
+                            d < (median + (stdDev*3)) ? "#99d594" :
+                                      "#3288bd";
+}
 
 //ADD ALL BUTTONS AND INPUTS
 //get exponent or distance decay coefficient
@@ -571,7 +619,7 @@ function addWellsLegend() {
 
         legendControl.addTo(map);
         legend = document.getElementsByClassName('legend')[0];
-        console.log('legend testing:', legend);
+        //console.log('legend testing:', legend);
     };
 
 //create wells hexbin legend for Map 1
@@ -601,7 +649,7 @@ function addInterpolateLegend() {
     };
         wellHexLegendControl.addTo(map);
         wellHexLegend = document.getElementsByClassName('legend')[1];
-        console.log("well hex legend: ", legend);
+        //console.log("well hex legend: ", legend);
     };
     
 //create census tracts legend for Map 2
@@ -633,7 +681,7 @@ function addCensusLegend() {
 
     censusLegendControl.addTo(map2);
     legend = document.getElementsByClassName('legend')[0];
-    console.log("legend two: ", legend)
+    //console.log("census legend: ", legend)
 };
 
 //create census tracts hexbins legend for Map 2 
@@ -663,7 +711,7 @@ function addInterpolateLegend2() {
     };
         censusHexLegendControl.addTo(map2);
         censusHexLegend = document.getElementsByClassName('legend')[1];
-        console.log("legend 2:", legend);
+        //console.log("interpolate2 legend", legend);
 };
 
 //create collected hexbin residual legend for Map 3
@@ -671,13 +719,13 @@ function addRegressionLegend() {
     residualLegendControl.onAdd = function (map3) {
 
         var div = L.DomUtil.create('div', 'residual legend'),
-            grades = [-1, -0.75, -0.5, -0.25, 0.25, 0.5, 0.75, 1],
-            labels = ['<label><b>Cancer(%)</b></label>'];
+            grades = [-3.0, -2.0, -1.0, 1.0, 2.0, 3.0],
+            labels = ['<label><b>Std Dev Res</b></label>'];
         div.innerHTML += labels;
         div.innerHTML += '<br>';
         for (var i = 0; i < grades.length; i++) {
             div.innerHTML +=
-                '<span style="background:' + getHexesColor3(grades[i] + .1) + '"></span> ';
+                '<span style="background:' + regHexColor(grades[i] + .1) + '"></span> ';
         }
 
         // a line break
@@ -693,5 +741,5 @@ function addRegressionLegend() {
     };
         residualLegendControl.addTo(map3);
         residualHexLegend = document.getElementsByClassName('legend')[1];
-        //console.log("legend 3:", legend);
+        console.log("legend 3:", legend);
     };
